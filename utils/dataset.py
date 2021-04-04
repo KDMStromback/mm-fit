@@ -63,21 +63,13 @@ class MMFit(Dataset):
                     sample_modalities[modality] = torch.as_tensor(self.skeleton_transform(
                         data[:, i:i+self.skeleton_window_length, 1:]), dtype=torch.float)
                 else:
-                    start_frame_idxs = []
-                    start_frame = frame
-                    while len(start_frame_idxs) == 0:
-                        start_frame_idxs = np.argwhere(data[:, 0] == start_frame)
-                        start_frame += 1
-                    start_frame_idx = start_frame_idxs[0][0]
+                    start_frame_idx = np.searchsorted(data[:, 0], frame, 'left')
 
-                    end_frame_idx = start_frame_idx + 1
-                    time_interval_s = (data[end_frame_idx, 1] - data[start_frame_idx, 1]) / 1000
-                    while time_interval_s < self.window_length:
-                        end_frame_idx += 1
-                        if end_frame_idx >= data.shape[0]:
-                            raise Exception('Error: end_frame_idx, {}, is out of index for data array with length {}'.
-                                            format(end_frame_idx, data.shape[0]))
-                        time_interval_s = (data[end_frame_idx, 1] - data[start_frame_idx, 1]) / 1000
+                    time_interval_s = (data[(start_frame_idx + 1):, 1] - data[start_frame_idx, 1]) / 1000
+                    end_frame_idx = np.searchsorted(time_interval_s, self.window_length, 'left') + start_frame_idx + 1
+                    if end_frame_idx >= data.shape[0]:
+                        raise Exception('Error: end_frame_idx, {}, is out of index for data array with length {}'.
+                                        format(end_frame_idx, data.shape[0]))
 
                     if 'hr' in modality:
                         sample_modalities[modality] = torch.as_tensor(self.sensor_transform(
