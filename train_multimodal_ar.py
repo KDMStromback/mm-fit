@@ -103,11 +103,13 @@ val_dataset = ConcatDataset(val_datasets)
 test_dataset = ConcatDataset(test_datasets)
 
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size,
-                                           sampler=RandomSampler(train_dataset), pin_memory=True)
+                                           sampler=RandomSampler(train_dataset), pin_memory=True, num_workers=4)
 val_loader = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=batch_size,
-                                         sampler=SequentialStridedSampler(val_dataset, window_stride), pin_memory=True)
+                                         sampler=SequentialStridedSampler(val_dataset, window_stride),
+                                         pin_memory=True, num_workers=4)
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size,
-                                          sampler=SequentialStridedSampler(test_dataset, window_stride), pin_memory=True)
+                                          sampler=SequentialStridedSampler(test_dataset, window_stride),
+                                          pin_memory=True, num_workers=4)
 
 ################
 # Instantiate model
@@ -208,7 +210,7 @@ for epoch in range(num_epochs):
 
             labels = labels.to(device, non_blocking=True)
             reps = reps.to(device, non_blocking=True)
-            
+
             outputs = model(modalities['pose_3d'],
                             modalities['eb_l_acc'], modalities['eb_l_gyr'],
                             modalities['sp_r_acc'], modalities['sp_r_gyr'],
