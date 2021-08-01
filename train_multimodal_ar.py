@@ -1,5 +1,6 @@
 import os
 import tqdm
+import copy
 import pprint
 import torch
 import torch.nn as nn
@@ -285,7 +286,7 @@ for epoch in range(num_epochs):
             if best_valid_acc is None or acc > best_valid_acc:
                 best_valid_acc = acc
                 steps_since_improvement = 0
-                best_model_state_dict = model.state_dict()
+                best_model_state_dict = copy.deepcopy(model.state_dict())
                 best_epoch = epoch
             else:
                 steps_since_improvement += 1
